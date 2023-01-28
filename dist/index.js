@@ -51,8 +51,8 @@ var ERROR;
     ERROR["wasmDecodeError"] = "wasmDecodeError";
 })(ERROR = exports.ERROR || (exports.ERROR = {}));
 const Player = (0, react_1.forwardRef)((props, ref) => {
-    const { width, height, url, config, debug, mute, scaleMode, fullscreen, className, decorderUrl } = props;
-    if (typeof decorderUrl !== "string") {
+    const { width, height, url, config, debug, mute, scaleMode, fullscreen, className, decoderUrl } = props;
+    if (typeof decoderUrl !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作");
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹");
         console.warn("2. 将 decorder.js 和 decorder.wasm 复制到你的静态资源中，两者必须处于同一目录");
@@ -63,7 +63,7 @@ const Player = (0, react_1.forwardRef)((props, ref) => {
     const container = (0, react_1.useRef)(null);
     const jessibucaRef = (0, react_1.useRef)(null);
     (0, react_1.useEffect)(() => {
-        jessibucaRef.current = new Jessibuca(Object.assign(Object.assign({ container: container.current }, config), { decoder: decorderUrl }));
+        jessibucaRef.current = new Jessibuca(Object.assign(Object.assign({ container: container.current }, config), { decoder: decoderUrl }));
         return () => {
             var _a;
             (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.destroy();

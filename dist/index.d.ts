@@ -681,15 +681,24 @@ export interface PlayerEvent {
 export interface PlayerProps extends PlayerEvent {
     className?: string;
     style?: CSSProperties;
+    /** @description 视频宽度 */
     width?: number;
+    /** @description 视频高度 */
     height?: number;
+    /** @description 视频地址 */
     url: string;
+    /** @description 播放器配置 */
     config?: PlayerConfig;
+    /** @description 是否开启调试 */
     debug?: boolean;
+    /** @description 是否静音 */
     mute?: boolean;
+    /** @description 视频填充模式 */
     scaleMode?: "fill" | "contain" | "cover";
+    /** @description 是否全屏 */
     fullscreen?: boolean;
-    decorderUrl: string;
+    /** @description 解码器 decoder.js 地址 */
+    decoderUrl: string;
 }
 declare const Player: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
 export default Player;
