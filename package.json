@@ -1,0 +1,19 @@
+{
+    "name": "react-jessibuca",
+    "version": "1.0.0",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "description": "Jessibuca Player for React",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "scripts": {
+        "build": "npx tsc -p ."
+    },
+    "devDependencies": {
+        "@types/react": "^18.0.27",
+        "typescript": "^4.9.4"
+    }
+}
