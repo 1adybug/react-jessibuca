@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, forwardRef, CSSProperties } from "react"
-import "./jessibuca.js"
+import "../jessibuca.js"
 
 /** 超时信息 */
 export enum TIMEOUT {

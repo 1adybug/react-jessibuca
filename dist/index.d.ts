@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-
+import "../jessibuca.js";
 /** 超时信息 */
 export declare enum TIMEOUT {
     /** 当play()的时候，如果没有数据返回 */

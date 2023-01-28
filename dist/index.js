@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ERROR = exports.TIMEOUT = void 0;
 const react_1 = __importStar(require("react"));
-require("./jessibuca.js");
+require("../jessibuca.js");
 /** 超时信息 */
 var TIMEOUT;
 (function (TIMEOUT) {
