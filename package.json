@@ -7,7 +7,7 @@
     "description": "Jessibuca Player for React",
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/1adybug/react-jessibuca"
     },
     "scripts": {
         "build": "npx tsc -p ."
