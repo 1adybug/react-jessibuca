@@ -847,19 +847,19 @@ const Player = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
         switch (objectFit) {
             case "fill":
                 jessibucaRef.current?.setScaleMode(0)
-                console.log(0)
+                return
 
             case "contain":
                 jessibucaRef.current?.setScaleMode(1)
-                console.log(1)
+                return
 
             case "cover":
                 jessibucaRef.current?.setScaleMode(2)
-                console.log(2)
+                return
 
             default:
                 jessibucaRef.current?.setScaleMode(1)
-                console.log(1)
+                return
         }
     }, [objectFit])
 

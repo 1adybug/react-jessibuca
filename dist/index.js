@@ -114,16 +114,16 @@ const Player = (0, react_1.forwardRef)((props, ref) => {
         switch (objectFit) {
             case "fill":
                 (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.setScaleMode(0);
-                console.log(0);
+                return;
             case "contain":
                 (_b = jessibucaRef.current) === null || _b === void 0 ? void 0 : _b.setScaleMode(1);
-                console.log(1);
+                return;
             case "cover":
                 (_c = jessibucaRef.current) === null || _c === void 0 ? void 0 : _c.setScaleMode(2);
-                console.log(2);
+                return;
             default:
                 (_d = jessibucaRef.current) === null || _d === void 0 ? void 0 : _d.setScaleMode(1);
-                console.log(1);
+                return;
         }
     }, [objectFit]);
     (0, react_1.useEffect)(() => {
