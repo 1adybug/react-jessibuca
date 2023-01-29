@@ -756,7 +756,7 @@ export interface PlayerProps extends PlayerEvent {
 
     /** @description 视频高度 */
     height?: number
-    
+
     /** @description 视频地址 */
     url: string
 
@@ -770,7 +770,7 @@ export interface PlayerProps extends PlayerEvent {
     mute?: boolean
 
     /** @description 视频填充模式 */
-    scaleMode?: "fill" | "contain" | "cover"
+    objectFit?: "fill" | "contain" | "cover"
 
     /** @description 是否全屏 */
     fullscreen?: boolean
@@ -780,7 +780,7 @@ export interface PlayerProps extends PlayerEvent {
 }
 
 const Player = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
-    const { width, height, url, config, debug, mute, scaleMode, fullscreen, className, decoderUrl } = props
+    const { width, height, url, config, debug, mute, objectFit, fullscreen, className, decoderUrl } = props
 
     if (typeof decoderUrl !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作")
@@ -828,39 +828,43 @@ const Player = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
     })
 
     useEffect(() => {
-        jessibucaRef.current!.play(url)
+        jessibucaRef.current?.play(url)
     }, [url])
 
     useEffect(() => {
-        jessibucaRef.current!.setDebug(!!debug)
+        jessibucaRef.current?.setDebug(!!debug)
     }, [debug])
 
     useEffect(() => {
         if (mute === true) {
-            jessibucaRef.current!.mute()
+            jessibucaRef.current?.mute()
             return
         }
-        jessibucaRef.current!.cancelMute()
+        jessibucaRef.current?.cancelMute()
     }, [mute])
 
     useEffect(() => {
-        switch (scaleMode) {
+        switch (objectFit) {
             case "fill":
-                jessibucaRef.current!.setScaleMode(0)
+                jessibucaRef.current?.setScaleMode(0)
+                console.log(0)
 
             case "contain":
-                jessibucaRef.current!.setScaleMode(1)
+                jessibucaRef.current?.setScaleMode(1)
+                console.log(1)
 
             case "cover":
-                jessibucaRef.current!.setScaleMode(2)
+                jessibucaRef.current?.setScaleMode(2)
+                console.log(2)
 
             default:
-                jessibucaRef.current!.setScaleMode(1)
+                jessibucaRef.current?.setScaleMode(1)
+                console.log(1)
         }
-    }, [scaleMode])
+    }, [objectFit])
 
     useEffect(() => {
-        jessibucaRef.current!.setFullscreen(!!fullscreen)
+        jessibucaRef.current?.setFullscreen(!!fullscreen)
     }, [fullscreen])
 
     if (width) {

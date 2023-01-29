@@ -51,7 +51,7 @@ var ERROR;
     ERROR["wasmDecodeError"] = "wasmDecodeError";
 })(ERROR = exports.ERROR || (exports.ERROR = {}));
 const Player = (0, react_1.forwardRef)((props, ref) => {
-    const { width, height, url, config, debug, mute, scaleMode, fullscreen, className, decoderUrl } = props;
+    const { width, height, url, config, debug, mute, objectFit, fullscreen, className, decoderUrl } = props;
     if (typeof decoderUrl !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作");
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹");
@@ -94,32 +94,41 @@ const Player = (0, react_1.forwardRef)((props, ref) => {
         }
     });
     (0, react_1.useEffect)(() => {
-        jessibucaRef.current.play(url);
+        var _a;
+        (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.play(url);
     }, [url]);
     (0, react_1.useEffect)(() => {
-        jessibucaRef.current.setDebug(!!debug);
+        var _a;
+        (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.setDebug(!!debug);
     }, [debug]);
     (0, react_1.useEffect)(() => {
+        var _a, _b;
         if (mute === true) {
-            jessibucaRef.current.mute();
+            (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.mute();
             return;
         }
-        jessibucaRef.current.cancelMute();
+        (_b = jessibucaRef.current) === null || _b === void 0 ? void 0 : _b.cancelMute();
     }, [mute]);
     (0, react_1.useEffect)(() => {
-        switch (scaleMode) {
+        var _a, _b, _c, _d;
+        switch (objectFit) {
             case "fill":
-                jessibucaRef.current.setScaleMode(0);
+                (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.setScaleMode(0);
+                console.log(0);
             case "contain":
-                jessibucaRef.current.setScaleMode(1);
+                (_b = jessibucaRef.current) === null || _b === void 0 ? void 0 : _b.setScaleMode(1);
+                console.log(1);
             case "cover":
-                jessibucaRef.current.setScaleMode(2);
+                (_c = jessibucaRef.current) === null || _c === void 0 ? void 0 : _c.setScaleMode(2);
+                console.log(2);
             default:
-                jessibucaRef.current.setScaleMode(1);
+                (_d = jessibucaRef.current) === null || _d === void 0 ? void 0 : _d.setScaleMode(1);
+                console.log(1);
         }
-    }, [scaleMode]);
+    }, [objectFit]);
     (0, react_1.useEffect)(() => {
-        jessibucaRef.current.setFullscreen(!!fullscreen);
+        var _a;
+        (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.setFullscreen(!!fullscreen);
     }, [fullscreen]);
     if (width) {
         style.width = `${width}px`;

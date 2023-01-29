@@ -22,3 +22,64 @@
 
     <Player width={400} height={300} url="http://xxx.xxx/xxx" decorderUrl="http://xxx.xxx/decorder.js" />
     ```
+
+## 参数
+
+```typescript
+
+export interface PlayerEvent {
+    onLoad?: () => void
+    onTimeUpdate?: (ts: number) => void
+    onVideoInfo?: (data: VideoInfo) => void
+    onAudioInfo?: (data: AudioInfo) => void
+    onLog?: (msg: any) => void
+    onError?: (err: ERROR) => void
+    onKBps?: (value: number) => void
+    onStart?: () => void
+    onTimeout?: (error: TIMEOUT) => void
+    onLoadingTimeout?: () => void
+    onDelayTimeout?: () => void
+    onFullscreen?: (data: any) => void
+    onPlay?: () => void
+    onPause?: () => void
+    onMute?: (data: any) => void
+    onStats?: (stats: Stats) => void
+    onPerformance?: (performance: 0 | 1 | 2) => void
+    onRecordStart?: () => void
+    onRecordEnd?: () => void
+    onRecord?: (data: any) => void
+    onRecordingTimestamp?: (timestamp: number) => void
+    onPlayToRenderTimes?: (times: PlayToRenderTimes) => void
+}
+
+export interface PlayerProps extends PlayerEvent {
+    className?: string
+    style?: CSSProperties
+    /** @description 视频宽度 */
+    width?: number
+
+    /** @description 视频高度 */
+    height?: number
+
+    /** @description 视频地址 */
+    url: string
+
+    /** @description 播放器配置 */
+    config?: PlayerConfig
+
+    /** @description 是否开启调试 */
+    debug?: boolean
+
+    /** @description 是否静音 */
+    mute?: boolean
+
+    /** @description 视频填充模式 */
+    objectFit?: "fill" | "contain" | "cover"
+
+    /** @description 是否全屏 */
+    fullscreen?: boolean
+
+    /** @description 解码器 decoder.js 地址 */
+    decoderUrl: string
+}
+```

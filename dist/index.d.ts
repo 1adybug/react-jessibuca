@@ -694,7 +694,7 @@ export interface PlayerProps extends PlayerEvent {
     /** @description 是否静音 */
     mute?: boolean;
     /** @description 视频填充模式 */
-    scaleMode?: "fill" | "contain" | "cover";
+    objectFit?: "fill" | "contain" | "cover";
     /** @description 是否全屏 */
     fullscreen?: boolean;
     /** @description 解码器 decoder.js 地址 */
