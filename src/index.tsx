@@ -758,7 +758,7 @@ export interface PlayerProps extends PlayerEvent {
     height?: number
 
     /** @description 视频地址 */
-    url: string
+    src: string
 
     /** @description 播放器配置 */
     config?: PlayerConfig
@@ -779,8 +779,8 @@ export interface PlayerProps extends PlayerEvent {
     decoderUrl: string
 }
 
-const Player = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
-    const { width, height, url, config, debug, mute, objectFit, fullscreen, className, decoderUrl } = props
+const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
+    const { width, height, src, config, debug, mute, objectFit, fullscreen, className, decoderUrl } = props
 
     if (typeof decoderUrl !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作")
@@ -828,8 +828,8 @@ const Player = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
     })
 
     useEffect(() => {
-        jessibucaRef.current?.play(url)
-    }, [url])
+        jessibucaRef.current?.play(src)
+    }, [src])
 
     useEffect(() => {
         jessibucaRef.current?.setDebug(!!debug)
@@ -878,4 +878,4 @@ const Player = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
     return <div ref={container} className={className} style={style}></div>
 })
 
-export default Player
+export default JessibucaPlayer

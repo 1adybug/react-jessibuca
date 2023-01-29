@@ -50,8 +50,8 @@ var ERROR;
     /** wasm 解码失败 */
     ERROR["wasmDecodeError"] = "wasmDecodeError";
 })(ERROR = exports.ERROR || (exports.ERROR = {}));
-const Player = (0, react_1.forwardRef)((props, ref) => {
-    const { width, height, url, config, debug, mute, objectFit, fullscreen, className, decoderUrl } = props;
+const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
+    const { width, height, src, config, debug, mute, objectFit, fullscreen, className, decoderUrl } = props;
     if (typeof decoderUrl !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作");
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹");
@@ -95,8 +95,8 @@ const Player = (0, react_1.forwardRef)((props, ref) => {
     });
     (0, react_1.useEffect)(() => {
         var _a;
-        (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.play(url);
-    }, [url]);
+        (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.play(src);
+    }, [src]);
     (0, react_1.useEffect)(() => {
         var _a;
         (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.setDebug(!!debug);
@@ -138,5 +138,5 @@ const Player = (0, react_1.forwardRef)((props, ref) => {
     }
     return react_1.default.createElement("div", { ref: container, className: className, style: style });
 });
-exports.default = Player;
+exports.default = JessibucaPlayer;
 //# sourceMappingURL=index.js.map

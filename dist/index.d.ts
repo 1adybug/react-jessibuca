@@ -686,7 +686,7 @@ export interface PlayerProps extends PlayerEvent {
     /** @description 视频高度 */
     height?: number;
     /** @description 视频地址 */
-    url: string;
+    src: string;
     /** @description 播放器配置 */
     config?: PlayerConfig;
     /** @description 是否开启调试 */
@@ -700,5 +700,5 @@ export interface PlayerProps extends PlayerEvent {
     /** @description 解码器 decoder.js 地址 */
     decoderUrl: string;
 }
-declare const Player: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
-export default Player;
+declare const JessibucaPlayer: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
+export default JessibucaPlayer;

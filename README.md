@@ -18,9 +18,9 @@
 5. 引入组件并使用
 
     ```typescript
-    import Player from "react-jessibuca"
+    import JessibucaPlayer from "react-jessibuca"
 
-    <Player width={400} height={300} url="http://xxx.xxx/xxx" decorderUrl="http://xxx.xxx/decorder.js" />
+    <JessibucaPlayer width={400} height={300} url="http://xxx.xxx/xxx" decorderUrl="http://xxx.xxx/decorder.js" />
     ```
 
 ## 参数
