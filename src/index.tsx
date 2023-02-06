@@ -864,7 +864,9 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
     }, [objectFit])
 
     useEffect(() => {
-        jessibucaRef.current?.setFullscreen(!!fullscreen)
+        if (fullscreen !== undefined) {
+            jessibucaRef.current?.setFullscreen(!!fullscreen)
+        }
     }, [fullscreen])
 
     if (width) {

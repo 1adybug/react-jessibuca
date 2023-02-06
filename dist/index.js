@@ -128,7 +128,9 @@ const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
     }, [objectFit]);
     (0, react_1.useEffect)(() => {
         var _a;
-        (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.setFullscreen(!!fullscreen);
+        if (fullscreen !== undefined) {
+            (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.setFullscreen(!!fullscreen);
+        }
     }, [fullscreen]);
     if (width) {
         style.width = `${width}px`;
