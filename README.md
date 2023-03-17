@@ -27,9 +27,9 @@
 
     ```typescript
     // 入口文件 index.ts
-    import { setDefaultDecoder } from "react-jessibuca"
+    import { setDecoder } from "react-jessibuca"
 
-    setDefaultDecoder("http://xxx.xxx/decoder.js")
+    setDecoder("http://xxx.xxx/decoder.js")
 
     ```
 

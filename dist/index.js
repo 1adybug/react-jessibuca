@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setDefaultDecoder = exports.ERROR = exports.TIMEOUT = void 0;
+exports.setDecoder = exports.ERROR = exports.TIMEOUT = void 0;
 const react_1 = __importStar(require("react"));
 require("../jessibuca.js");
 /** 超时信息 */
@@ -51,10 +51,10 @@ var ERROR;
     ERROR["wasmDecodeError"] = "wasmDecodeError";
 })(ERROR = exports.ERROR || (exports.ERROR = {}));
 let defaultDecoder = "";
-function setDefaultDecoder(decorder) {
+function setDecoder(decorder) {
     defaultDecoder = decorder;
 }
-exports.setDefaultDecoder = setDefaultDecoder;
+exports.setDecoder = setDecoder;
 const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
     const { width, height, src, config, debug, mute, objectFit, fullscreen, className, decoder = defaultDecoder } = props;
     if (typeof decoder !== "string") {

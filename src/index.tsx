@@ -781,7 +781,7 @@ export interface PlayerProps extends PlayerEvent {
 
 let defaultDecoder = ""
 
-export function setDefaultDecoder(decorder: string) {
+export function setDecoder(decorder: string) {
     defaultDecoder = decorder
 }
 

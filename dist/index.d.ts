@@ -700,6 +700,6 @@ export interface PlayerProps extends PlayerEvent {
     /** @description 解码器 decoder.js 地址 */
     decoder?: string;
 }
-export declare function setDefaultDecoder(decorder: string): void;
+export declare function setDecoder(decorder: string): void;
 declare const JessibucaPlayer: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
 export default JessibucaPlayer;
