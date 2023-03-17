@@ -698,7 +698,8 @@ export interface PlayerProps extends PlayerEvent {
     /** @description 是否全屏 */
     fullscreen?: boolean;
     /** @description 解码器 decoder.js 地址 */
-    decoderUrl: string;
+    decoder?: string;
 }
+export declare function setDefaultDecoder(decorder: string): void;
 declare const JessibucaPlayer: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
 export default JessibucaPlayer;

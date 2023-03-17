@@ -776,13 +776,19 @@ export interface PlayerProps extends PlayerEvent {
     fullscreen?: boolean
 
     /** @description 解码器 decoder.js 地址 */
-    decoderUrl: string
+    decoder?: string
+}
+
+let defaultDecoder = ""
+
+export function setDefaultDecoder(decorder: string) {
+    defaultDecoder = decorder
 }
 
 const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
-    const { width, height, src, config, debug, mute, objectFit, fullscreen, className, decoderUrl } = props
+    const { width, height, src, config, debug, mute, objectFit, fullscreen, className, decoder = defaultDecoder } = props
 
-    if (typeof decoderUrl !== "string") {
+    if (typeof decoder !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作")
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹")
         console.warn("2. 将 decorder.js 和 decorder.wasm 复制到你的静态资源中，两者必须处于同一目录")
@@ -797,7 +803,7 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
     const jessibucaRef = useRef<Jessibuca | null>(null)
 
     useEffect(() => {
-        jessibucaRef.current = new Jessibuca({ container: container.current!, ...config, decoder: decoderUrl })
+        jessibucaRef.current = new Jessibuca({ container: container.current!, ...config, decoder })
 
         return () => {
             jessibucaRef.current?.destroy()
