@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setDecoder = exports.ERROR = exports.TIMEOUT = void 0;
+exports.setConcurrency = exports.setDecoder = exports.ERROR = exports.TIMEOUT = void 0;
 const react_1 = __importStar(require("react"));
 require("../jessibuca.js");
 /** 超时信息 */
@@ -51,12 +51,18 @@ var ERROR;
     ERROR["wasmDecodeError"] = "wasmDecodeError";
 })(ERROR = exports.ERROR || (exports.ERROR = {}));
 let defaultDecoder = "";
+let concurrency = 9999;
+let total = 0;
 function setDecoder(decorder) {
     defaultDecoder = decorder;
 }
 exports.setDecoder = setDecoder;
+function setConcurrency(limit) {
+    concurrency = limit;
+}
+exports.setConcurrency = setConcurrency;
 const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
-    const { width, height, src, config, debug, mute, objectFit, fullscreen, className, decoder = defaultDecoder } = props;
+    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, onExceed, decodeMode, fullscreen, loadingText } = props;
     if (typeof decoder !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作");
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹");
@@ -67,20 +73,37 @@ const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
     const style = props.style || {};
     const container = (0, react_1.useRef)(null);
     const jessibucaRef = (0, react_1.useRef)(null);
+    const [exceeded, setExceeded] = (0, react_1.useState)(false);
+    const [color, setColor] = (0, react_1.useState)("");
     (0, react_1.useEffect)(() => {
-        jessibucaRef.current = new Jessibuca(Object.assign(Object.assign({ container: container.current }, config), { decoder }));
-        return () => {
-            var _a;
-            (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.destroy();
-            if (ref) {
-                if (typeof ref === "function") {
-                    ref(null);
+        if (total < concurrency) {
+            total++;
+            jessibucaRef.current = new Jessibuca(Object.assign(Object.assign(Object.assign(Object.assign({ container: container.current }, config), { decoder }), (decodeMode === "useMSE" ? { useMSE: true } : decodeMode === "useWCS" ? { useWCS: true } : {})), { loadingText }));
+            return () => {
+                var _a;
+                total--;
+                (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.destroy();
+                if (ref) {
+                    if (typeof ref === "function") {
+                        ref(null);
+                    }
+                    else {
+                        ref.current = null;
+                    }
                 }
-                else {
-                    ref.current = null;
-                }
-            }
-        };
+            };
+        }
+        else {
+            console.warn("超出并发限制");
+            const color = `#${getComputedStyle(container.current)
+                .backgroundColor.match(/rgba?\((.+?)\)/)[1]
+                .split(",")
+                .map(it => (255 - Number(it)).toString(16).padStart(2, "0"))
+                .join("")}`;
+            onExceed === null || onExceed === void 0 ? void 0 : onExceed(concurrency);
+            setExceeded(true);
+            setColor(color);
+        }
     }, []);
     (0, react_1.useEffect)(() => {
         if (ref) {
@@ -92,7 +115,7 @@ const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
             }
         }
         for (const event in props) {
-            if (event.startsWith("on")) {
+            if (event.startsWith("on") && jessibucaRef.current) {
                 ;
                 jessibucaRef.current[event] = props[event];
             }
@@ -143,7 +166,7 @@ const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
     if (height) {
         style.height = `${height}px`;
     }
-    return react_1.default.createElement("div", { ref: container, className: className, style: style });
+    return (react_1.default.createElement("div", { ref: container, className: className, style: style }, exceeded && react_1.default.createElement("div", { style: { color } }, "\u8D85\u51FA\u5E76\u53D1\u9650\u5236")));
 });
 exports.default = JessibucaPlayer;
 //# sourceMappingURL=index.js.map

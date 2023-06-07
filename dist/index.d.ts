@@ -691,15 +691,22 @@ export interface PlayerProps extends PlayerEvent {
     config?: PlayerConfig;
     /** @description 是否开启调试 */
     debug?: boolean;
-    /** @description 是否静音 */
+    /** @description 是否静音，建议同时使用 onMute 事件来监听更改 */
     mute?: boolean;
     /** @description 视频填充模式 */
     objectFit?: "fill" | "contain" | "cover";
-    /** @description 是否全屏 */
+    /** @description 是否全屏，建议同时使用 onFullscreen 事件来监听更改 */
     fullscreen?: boolean;
     /** @description 解码器 decoder.js 地址 */
     decoder?: string;
+    /** @description 加载文字 */
+    loadingText?: string;
+    /** @description 解码模式，详见 https://jessibuca.com/document.html#usemse */
+    decodeMode?: "useMSE" | "useWCS" | "wasm";
+    /** @description 当前超过并发限制时，回调 */
+    onExceed?: (concurrency: number) => void;
 }
 export declare function setDecoder(decorder: string): void;
+export declare function setConcurrency(limit: number): void;
 declare const JessibucaPlayer: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
 export default JessibucaPlayer;
