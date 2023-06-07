@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef, CSSProperties } from "react"
+import React, { useEffect, useRef, forwardRef, CSSProperties, useState } from "react"
 import "../jessibuca.js"
 
 /** 超时信息 */
@@ -766,27 +766,42 @@ export interface PlayerProps extends PlayerEvent {
     /** @description 是否开启调试 */
     debug?: boolean
 
-    /** @description 是否静音 */
+    /** @description 是否静音，建议同时使用 onMute 事件来监听更改 */
     mute?: boolean
 
     /** @description 视频填充模式 */
     objectFit?: "fill" | "contain" | "cover"
 
-    /** @description 是否全屏 */
+    /** @description 是否全屏，建议同时使用 onFullscreen 事件来监听更改 */
     fullscreen?: boolean
 
     /** @description 解码器 decoder.js 地址 */
     decoder?: string
+
+    /** @description 加载文字 */
+    loadingText?: string
+
+    /** @description 解码模式，详见 https://jessibuca.com/document.html#usemse */
+    decodeMode?: "useMSE" | "useWCS" | "wasm"
+
+    /** @description 当前超过并发限制时，回调 */
+    onExceed?: (concurrency: number) => void
 }
 
 let defaultDecoder = ""
+let concurrency: number = 9999
+let total = 0
 
 export function setDecoder(decorder: string) {
     defaultDecoder = decorder
 }
 
+export function setConcurrency(limit: number) {
+    concurrency = limit
+}
+
 const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
-    const { width, height, src, config, debug, mute, objectFit, fullscreen, className, decoder = defaultDecoder } = props
+    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, onExceed, decodeMode, fullscreen, loadingText } = props
 
     if (typeof decoder !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作")
@@ -802,18 +817,41 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
 
     const jessibucaRef = useRef<Jessibuca | null>(null)
 
-    useEffect(() => {
-        jessibucaRef.current = new Jessibuca({ container: container.current!, ...config, decoder })
+    const [exceeded, setExceeded] = useState(false)
 
-        return () => {
-            jessibucaRef.current?.destroy()
-            if (ref) {
-                if (typeof ref === "function") {
-                    ref(null)
-                } else {
-                    ref.current = null
+    const [color, setColor] = useState("")
+
+    useEffect(() => {
+        if (total < concurrency) {
+            total++
+            jessibucaRef.current = new Jessibuca({
+                container: container.current!,
+                ...config,
+                decoder,
+                ...(decodeMode === "useMSE" ? { useMSE: true } : decodeMode === "useWCS" ? { useWCS: true } : {}),
+                loadingText
+            })
+            return () => {
+                total--
+                jessibucaRef.current?.destroy()
+                if (ref) {
+                    if (typeof ref === "function") {
+                        ref(null)
+                    } else {
+                        ref.current = null
+                    }
                 }
             }
+        } else {
+            console.warn("超出并发限制")
+            const color = `#${getComputedStyle(container.current!)
+                .backgroundColor.match(/rgba?\((.+?)\)/)![1]
+                .split(",")
+                .map(it => (255 - Number(it)).toString(16).padStart(2, "0"))
+                .join("")}`
+            onExceed?.(concurrency)
+            setExceeded(true)
+            setColor(color)
         }
     }, [])
 
@@ -827,8 +865,8 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
         }
 
         for (const event in props) {
-            if (event.startsWith("on")) {
-                ;(jessibucaRef.current![event as keyof PlayerEvent] as any) = props[event as keyof PlayerEvent]
+            if (event.startsWith("on") && jessibucaRef.current) {
+                ;(jessibucaRef.current[event as keyof PlayerEvent] as any) = props[event as keyof PlayerEvent]
             }
         }
     })
@@ -883,7 +921,11 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
         style.height = `${height}px`
     }
 
-    return <div ref={container} className={className} style={style}></div>
+    return (
+        <div ref={container} className={className} style={style}>
+            {exceeded && <div style={{ color }}>超出并发限制</div>}
+        </div>
+    )
 })
 
 export default JessibucaPlayer
