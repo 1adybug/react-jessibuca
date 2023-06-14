@@ -22,10 +22,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setConcurrency = exports.setDecoder = exports.ERROR = exports.TIMEOUT = void 0;
+exports.setDecoder = exports.setConcurrency = exports.ERROR = exports.TIMEOUT = void 0;
 const react_1 = __importStar(require("react"));
 require("../jessibuca.js");
+const easy_zustand_1 = __importDefault(require("easy-zustand"));
 /** 超时信息 */
 var TIMEOUT;
 (function (TIMEOUT) {
@@ -50,61 +54,73 @@ var ERROR;
     /** wasm 解码失败 */
     ERROR["wasmDecodeError"] = "wasmDecodeError";
 })(ERROR = exports.ERROR || (exports.ERROR = {}));
-let defaultDecoder = "";
-let concurrency = 9999;
-let total = 0;
-function setDecoder(decorder) {
-    defaultDecoder = decorder;
-}
-exports.setDecoder = setDecoder;
+const useInfo = (0, easy_zustand_1.default)({ count: 0, maxCount: 9999, waiting: [], defaultDecoder: "" });
 function setConcurrency(limit) {
-    concurrency = limit;
+    useInfo.setState({ maxCount: limit });
 }
 exports.setConcurrency = setConcurrency;
+function setDecoder(url) {
+    useInfo.setState({ defaultDecoder: url });
+}
+exports.setDecoder = setDecoder;
 const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
-    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, onExceed, decodeMode, fullscreen, loadingText } = props;
-    if (typeof decoder !== "string") {
+    const [info, setInfo] = useInfo();
+    const { count, maxCount, defaultDecoder, waiting } = info;
+    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, decodeMode, fullscreen, loadingText } = props;
+    if (typeof decoder !== "string" || decoder === "") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作");
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹");
         console.warn("2. 将 decorder.js 和 decorder.wasm 复制到你的静态资源中，两者必须处于同一目录");
         console.warn("3. 将 decorderUrl 设置为你的 decorder.js 路径地址");
         throw new Error("解码器错误");
     }
+    const { current: id } = (0, react_1.useRef)(Symbol());
+    const played = (0, react_1.useRef)(false);
+    const showExceeded = (0, react_1.useRef)(false);
     const style = props.style || {};
     const container = (0, react_1.useRef)(null);
     const jessibucaRef = (0, react_1.useRef)(null);
     const [exceeded, setExceeded] = (0, react_1.useState)(false);
     const [color, setColor] = (0, react_1.useState)("");
-    (0, react_1.useEffect)(() => {
-        if (total < concurrency) {
-            total++;
-            jessibucaRef.current = new Jessibuca(Object.assign(Object.assign(Object.assign(Object.assign({ container: container.current }, config), { decoder }), (decodeMode === "useMSE" ? { useMSE: true } : decodeMode === "useWCS" ? { useWCS: true } : {})), { loadingText }));
-            return () => {
-                var _a;
-                total--;
-                (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.destroy();
-                if (ref) {
-                    if (typeof ref === "function") {
-                        ref(null);
-                    }
-                    else {
-                        ref.current = null;
-                    }
-                }
-            };
-        }
-        else {
-            console.warn("超出并发限制");
-            const color = `#${getComputedStyle(container.current)
-                .backgroundColor.match(/rgba?\((.+?)\)/)[1]
-                .split(",")
-                .map(it => (255 - Number(it)).toString(16).padStart(2, "0"))
-                .join("")}`;
-            onExceed === null || onExceed === void 0 ? void 0 : onExceed(concurrency);
-            setExceeded(true);
-            setColor(color);
+    const init = (0, react_1.useCallback)(() => {
+        setInfo(state => ({ count: state.count + 1, waiting: state.waiting.filter(it => it !== id) }));
+        setExceeded(false);
+        setColor("");
+        played.current = true;
+        jessibucaRef.current = new Jessibuca(Object.assign(Object.assign(Object.assign(Object.assign({ container: container.current }, config), { decoder }), (decodeMode === "useMSE" ? { useMSE: true } : decodeMode === "useWCS" ? { useWCS: true } : {})), { loadingText }));
+    }, [config, decoder, decodeMode, loadingText]);
+    const unMount = (0, react_1.useCallback)(() => {
+        var _a;
+        setInfo(state => ({ count: state.count - 1, waiting: state.waiting.filter(it => it !== id) }));
+        played.current = false;
+        (_a = jessibucaRef.current) === null || _a === void 0 ? void 0 : _a.destroy();
+        if (ref) {
+            if (typeof ref === "function") {
+                ref(null);
+            }
+            else {
+                ref.current = null;
+            }
         }
     }, []);
+    const onExceeded = (0, react_1.useCallback)(() => {
+        const color = `#${getComputedStyle(container.current)
+            .backgroundColor.match(/rgba?\((.+?)\)/)[1]
+            .split(",")
+            .map(it => (255 - Number(it)).toString(16).padStart(2, "0"))
+            .join("")}`;
+        setExceeded(true);
+        setColor(color);
+    }, []);
+    (0, react_1.useEffect)(() => {
+        if (played.current)
+            return;
+        if (count < maxCount && (waiting.length === 0 || waiting[0] === id)) {
+            init();
+            return unMount;
+        }
+        onExceeded();
+    }, [count, maxCount, waiting]);
     (0, react_1.useEffect)(() => {
         if (ref) {
             if (typeof ref === "function") {
@@ -166,7 +182,7 @@ const JessibucaPlayer = (0, react_1.forwardRef)((props, ref) => {
     if (height) {
         style.height = `${height}px`;
     }
-    return (react_1.default.createElement("div", { ref: container, className: className, style: style }, exceeded && react_1.default.createElement("div", { style: { color } }, "\u8D85\u51FA\u5E76\u53D1\u9650\u5236")));
+    return (react_1.default.createElement("div", { ref: container, className: className, style: style }, exceeded && react_1.default.createElement("div", { style: { color, display: "flex", alignItems: "center" } }, "\u8D85\u51FA\u5E76\u53D1\u9650\u5236")));
 });
 exports.default = JessibucaPlayer;
 //# sourceMappingURL=index.js.map

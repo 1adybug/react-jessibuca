@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, forwardRef, CSSProperties, useState } from "react"
+import React, { useEffect, useRef, forwardRef, CSSProperties, useState, useCallback } from "react"
 import "../jessibuca.js"
+import createStore from "easy-zustand"
 
 /** 超时信息 */
 export enum TIMEOUT {
@@ -783,33 +784,45 @@ export interface PlayerProps extends PlayerEvent {
 
     /** @description 解码模式，详见 https://jessibuca.com/document.html#usemse */
     decodeMode?: "useMSE" | "useWCS" | "wasm"
-
-    /** @description 当前超过并发限制时，回调 */
-    onExceed?: (concurrency: number) => void
 }
 
-let defaultDecoder = ""
-let concurrency: number = 9999
-let total = 0
-
-export function setDecoder(decorder: string) {
-    defaultDecoder = decorder
+interface PlayerGlobalInfo {
+    count: number
+    maxCount: number
+    defaultDecoder: string
+    waiting: symbol[]
 }
+
+const useInfo = createStore<PlayerGlobalInfo>({ count: 0, maxCount: 9999, waiting: [], defaultDecoder: "" })
 
 export function setConcurrency(limit: number) {
-    concurrency = limit
+    useInfo.setState({ maxCount: limit })
+}
+
+export function setDecoder(url: string) {
+    useInfo.setState({ defaultDecoder: url })
 }
 
 const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
-    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, onExceed, decodeMode, fullscreen, loadingText } = props
+    const [info, setInfo] = useInfo()
 
-    if (typeof decoder !== "string") {
+    const { count, maxCount, defaultDecoder, waiting } = info
+
+    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, decodeMode, fullscreen, loadingText } = props
+
+    if (typeof decoder !== "string" || decoder === "") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作")
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹")
         console.warn("2. 将 decorder.js 和 decorder.wasm 复制到你的静态资源中，两者必须处于同一目录")
         console.warn("3. 将 decorderUrl 设置为你的 decorder.js 路径地址")
         throw new Error("解码器错误")
     }
+
+    const { current: id } = useRef(Symbol())
+
+    const played = useRef(false)
+
+    const showExceeded = useRef(false)
 
     const style: CSSProperties = props.style || {}
 
@@ -821,39 +834,51 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
 
     const [color, setColor] = useState("")
 
-    useEffect(() => {
-        if (total < concurrency) {
-            total++
-            jessibucaRef.current = new Jessibuca({
-                container: container.current!,
-                ...config,
-                decoder,
-                ...(decodeMode === "useMSE" ? { useMSE: true } : decodeMode === "useWCS" ? { useWCS: true } : {}),
-                loadingText
-            })
-            return () => {
-                total--
-                jessibucaRef.current?.destroy()
-                if (ref) {
-                    if (typeof ref === "function") {
-                        ref(null)
-                    } else {
-                        ref.current = null
-                    }
-                }
+    const init = useCallback(() => {
+        setInfo(state => ({ count: state.count + 1, waiting: state.waiting.filter(it => it !== id) }))
+        setExceeded(false)
+        setColor("")
+        played.current = true
+        jessibucaRef.current = new Jessibuca({
+            container: container.current!,
+            ...config,
+            decoder,
+            ...(decodeMode === "useMSE" ? { useMSE: true } : decodeMode === "useWCS" ? { useWCS: true } : {}),
+            loadingText
+        })
+    }, [config, decoder, decodeMode, loadingText])
+
+    const unMount = useCallback(() => {
+        setInfo(state => ({ count: state.count - 1, waiting: state.waiting.filter(it => it !== id) }))
+        played.current = false
+        jessibucaRef.current?.destroy()
+        if (ref) {
+            if (typeof ref === "function") {
+                ref(null)
+            } else {
+                ref.current = null
             }
-        } else {
-            console.warn("超出并发限制")
-            const color = `#${getComputedStyle(container.current!)
-                .backgroundColor.match(/rgba?\((.+?)\)/)![1]
-                .split(",")
-                .map(it => (255 - Number(it)).toString(16).padStart(2, "0"))
-                .join("")}`
-            onExceed?.(concurrency)
-            setExceeded(true)
-            setColor(color)
         }
     }, [])
+
+    const onExceeded = useCallback(() => {
+        const color = `#${getComputedStyle(container.current!)
+            .backgroundColor.match(/rgba?\((.+?)\)/)![1]
+            .split(",")
+            .map(it => (255 - Number(it)).toString(16).padStart(2, "0"))
+            .join("")}`
+        setExceeded(true)
+        setColor(color)
+    }, [])
+
+    useEffect(() => {
+        if (played.current) return
+        if (count < maxCount && (waiting.length === 0 || waiting[0] === id)) {
+            init()
+            return unMount
+        }
+        onExceeded()
+    }, [count, maxCount, waiting])
 
     useEffect(() => {
         if (ref) {
@@ -923,7 +948,7 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
 
     return (
         <div ref={container} className={className} style={style}>
-            {exceeded && <div style={{ color }}>超出并发限制</div>}
+            {exceeded && <div style={{ color, display: "flex", alignItems: "center" }}>超出并发限制</div>}
         </div>
     )
 })

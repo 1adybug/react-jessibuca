@@ -21,5 +21,8 @@
         "react",
         "react jessibuca",
         "react-jessibuca"
-    ]
+    ],
+    "dependencies": {
+        "easy-zustand": "^3.5.3"
+    }
 }
