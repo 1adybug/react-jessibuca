@@ -703,10 +703,8 @@ export interface PlayerProps extends PlayerEvent {
     loadingText?: string;
     /** @description 解码模式，详见 https://jessibuca.com/document.html#usemse */
     decodeMode?: "useMSE" | "useWCS" | "wasm";
-    /** @description 当前超过并发限制时，回调 */
-    onExceed?: (concurrency: number) => void;
 }
-export declare function setDecoder(decorder: string): void;
 export declare function setConcurrency(limit: number): void;
+export declare function setDecoder(url: string): void;
 declare const JessibucaPlayer: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
 export default JessibucaPlayer;
