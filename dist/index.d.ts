@@ -22,6 +22,18 @@ export declare enum ERROR {
     /** wasm 解码失败 */
     wasmDecodeError = "wasmDecodeError"
 }
+export interface ControlOptions {
+    /** 是否显示全屏按钮 */
+    fullscreen?: boolean;
+    /** 是否显示截图按钮 */
+    screenshot?: boolean;
+    /** 是否显示播放暂停按钮 */
+    play?: boolean;
+    /** 是否显示声音按钮 */
+    audio?: boolean;
+    /** 是否显示录制按 */
+    record?: boolean;
+}
 export interface Config {
     /**
      * 播放器容器
@@ -95,18 +107,7 @@ export interface Config {
     /**
      * 配置操作按钮
      */
-    operateBtns?: {
-        /** 是否显示全屏按钮 */
-        fullscreen?: boolean;
-        /** 是否显示截图按钮 */
-        screenshot?: boolean;
-        /** 是否显示播放暂停按钮 */
-        play?: boolean;
-        /** 是否显示声音按钮 */
-        audio?: boolean;
-        /** 是否显示录制按 */
-        record?: boolean;
-    };
+    operateBtns?: ControlOptions;
     /**
      * 开启屏幕常亮，在手机浏览器上, canvas标签渲染视频并不会像video标签那样保持屏幕常亮
      */
@@ -221,7 +222,7 @@ export interface PlayToRenderTimes {
     /** videoStart - playInitStart */
     allTimestamp: number;
 }
-export type PlayerConfig = Omit<Config, "container" | "decorder">;
+export type PlayerConfig = Omit<Config, "container" | "decoder">;
 declare global {
     class Jessibuca {
         constructor(config?: Config);
@@ -641,10 +642,10 @@ declare global {
         onTimeout?: (error: TIMEOUT) => void;
         onLoadingTimeout?: () => void;
         onDelayTimeout?: () => void;
-        onFullscreen?: (data: any) => void;
+        onFullscreen?: (fullscreen: boolean) => void;
         onPlay?: () => void;
         onPause?: () => void;
-        onMute?: (data: any) => void;
+        onMute?: (mute: boolean) => void;
         onStats?: (stats: Stats) => void;
         onPerformance?: (performance: 0 | 1 | 2) => void;
         onRecordStart?: () => void;
@@ -666,10 +667,10 @@ export interface PlayerEvent {
     onTimeout?: (error: TIMEOUT) => void;
     onLoadingTimeout?: () => void;
     onDelayTimeout?: () => void;
-    onFullscreen?: (data: any) => void;
+    onFullscreen?: (fullscreen: boolean) => void;
     onPlay?: () => void;
     onPause?: () => void;
-    onMute?: (data: any) => void;
+    onMute?: (mute: boolean) => void;
     onStats?: (stats: Stats) => void;
     onPerformance?: (performance: 0 | 1 | 2) => void;
     onRecordStart?: () => void;
@@ -681,30 +682,36 @@ export interface PlayerEvent {
 export interface PlayerProps extends PlayerEvent {
     className?: string;
     style?: CSSProperties;
-    /** @description 视频宽度 */
+    /** 视频宽度 */
     width?: number;
-    /** @description 视频高度 */
+    /** 视频高度 */
     height?: number;
-    /** @description 视频地址 */
+    /** 视频地址 */
     src: string;
-    /** @description 播放器配置 */
+    /** 播放器配置 */
     config?: PlayerConfig;
-    /** @description 是否开启调试 */
+    /** 是否开启调试 */
     debug?: boolean;
-    /** @description 是否静音，建议同时使用 onMute 事件来监听更改 */
+    /** 是否静音，建议同时使用 onMute 事件来监听更改 */
     mute?: boolean;
-    /** @description 视频填充模式 */
+    /** 视频填充模式 */
     objectFit?: "fill" | "contain" | "cover";
-    /** @description 是否全屏，建议同时使用 onFullscreen 事件来监听更改 */
+    /** 是否全屏，建议同时使用 onFullscreen 事件来监听更改 */
     fullscreen?: boolean;
-    /** @description 解码器 decoder.js 地址 */
+    /** 解码器 decoder.js 地址 */
     decoder?: string;
-    /** @description 加载文字 */
+    /** 加载文字 */
     loadingText?: string;
-    /** @description 解码模式，详见 https://jessibuca.com/document.html#usemse */
+    /** 解码模式，详见 https://jessibuca.com/document.html#usemse */
     decodeMode?: "useMSE" | "useWCS" | "wasm";
+    /** 当前超过并发限制时，回调 */
+    onExceed?: (concurrency: number) => void;
+    /** 是否开启控制栏 */
+    controls?: boolean | ControlOptions;
+    /** 音量大小 */
+    volume?: number;
 }
+export declare function setDecoder(decoder: string): void;
 export declare function setConcurrency(limit: number): void;
-export declare function setDecoder(url: string): void;
 declare const JessibucaPlayer: React.ForwardRefExoticComponent<PlayerProps & React.RefAttributes<Jessibuca>>;
 export default JessibucaPlayer;

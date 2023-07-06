@@ -231,7 +231,7 @@ export interface PlayToRenderTimes {
     allTimestamp: number
 }
 
-export type PlayerConfig = Omit<Config, "container" | "decorder">
+export type PlayerConfig = Omit<Config, "container" | "decoder">
 
 declare global {
     class Jessibuca {
@@ -800,8 +800,8 @@ let defaultDecoder = ""
 let concurrency: number = 9999
 let total = 0
 
-export function setDecoder(decorder: string) {
-    defaultDecoder = decorder
+export function setDecoder(decoder: string) {
+    defaultDecoder = decoder
 }
 
 export function setConcurrency(limit: number) {
@@ -812,10 +812,10 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
     const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, onExceed, decodeMode, fullscreen, loadingText, controls, volume } = props
 
     if (typeof decoder !== "string") {
-        console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作")
+        console.warn("检测到你没有输入解码器的 decoder，请按以下步骤操作")
         console.warn("1. 打开项目目录中的 node_modules/react-jessibuca/static 文件夹")
-        console.warn("2. 将 decorder.js 和 decorder.wasm 复制到你的静态资源中，两者必须处于同一目录")
-        console.warn("3. 将 decorderUrl 设置为你的 decorder.js 路径地址")
+        console.warn("2. 将 decoder.js 和 decoder.wasm 复制到你的静态资源中，两者必须处于同一目录")
+        console.warn("3. 将组件中的 decoder 参数设置为你的 decoder.js 路径地址，或者在全局组件中引入并设置 `import { setDecoder } from \"react-jessibuca\"; setDecoder(\"http://xxx.xxx/decoder.js\");`")
         throw new Error("解码器错误")
     }
 

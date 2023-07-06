@@ -30,13 +30,11 @@
     import { setDecoder } from "react-jessibuca"
 
     setDecoder("http://xxx.xxx/decoder.js")
-
     ```
 
 ## 参数
 
 ```typescript
-
 export interface PlayerEvent {
     onLoad?: () => void
     onTimeUpdate?: (ts: number) => void
@@ -49,10 +47,10 @@ export interface PlayerEvent {
     onTimeout?: (error: TIMEOUT) => void
     onLoadingTimeout?: () => void
     onDelayTimeout?: () => void
-    onFullscreen?: (data: any) => void
+    onFullscreen?: (fullscreen: boolean) => void
     onPlay?: () => void
     onPause?: () => void
-    onMute?: (data: any) => void
+    onMute?: (mute: boolean) => void
     onStats?: (stats: Stats) => void
     onPerformance?: (performance: 0 | 1 | 2) => void
     onRecordStart?: () => void
@@ -62,34 +60,62 @@ export interface PlayerEvent {
     onPlayToRenderTimes?: (times: PlayToRenderTimes) => void
 }
 
+export interface ControlOptions {
+    /** 是否显示全屏按钮 */
+    fullscreen?: boolean
+    /** 是否显示截图按钮 */
+    screenshot?: boolean
+    /** 是否显示播放暂停按钮 */
+    play?: boolean
+    /** 是否显示声音按钮 */
+    audio?: boolean
+    /** 是否显示录制按 */
+    record?: boolean
+}
+
 export interface PlayerProps extends PlayerEvent {
     className?: string
     style?: CSSProperties
-    /** @description 视频宽度 */
+    /** 视频宽度 */
     width?: number
 
-    /** @description 视频高度 */
+    /** 视频高度 */
     height?: number
 
-    /** @description 视频地址 */
-    url: string
+    /** 视频地址 */
+    src: string
 
-    /** @description 播放器配置 */
+    /** 播放器配置 */
     config?: PlayerConfig
 
-    /** @description 是否开启调试 */
+    /** 是否开启调试 */
     debug?: boolean
 
-    /** @description 是否静音 */
+    /** 是否静音，建议同时使用 onMute 事件来监听更改 */
     mute?: boolean
 
-    /** @description 视频填充模式 */
+    /** 视频填充模式 */
     objectFit?: "fill" | "contain" | "cover"
 
-    /** @description 是否全屏 */
+    /** 是否全屏，建议同时使用 onFullscreen 事件来监听更改 */
     fullscreen?: boolean
 
-    /** @description 解码器 decoder.js 地址 */
-    decoderUrl: string
+    /** 解码器 decoder.js 地址 */
+    decoder?: string
+
+    /** 加载文字 */
+    loadingText?: string
+
+    /** 解码模式，详见 https://jessibuca.com/document.html#usemse */
+    decodeMode?: "useMSE" | "useWCS" | "wasm"
+
+    /** 当前超过并发限制时，回调 */
+    onExceed?: (concurrency: number) => void
+
+    /** 是否开启控制栏 */
+    controls?: boolean | ControlOptions
+
+    /** 音量大小 */
+    volume?: number
 }
 ```
