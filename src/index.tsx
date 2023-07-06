@@ -25,6 +25,19 @@ export enum ERROR {
     wasmDecodeError = "wasmDecodeError"
 }
 
+export interface ControlOptions {
+    /** 是否显示全屏按钮 */
+    fullscreen?: boolean
+    /** 是否显示截图按钮 */
+    screenshot?: boolean
+    /** 是否显示播放暂停按钮 */
+    play?: boolean
+    /** 是否显示声音按钮 */
+    audio?: boolean
+    /** 是否显示录制按 */
+    record?: boolean
+}
+
 export interface Config {
     /**
      * 播放器容器
@@ -98,18 +111,7 @@ export interface Config {
     /**
      * 配置操作按钮
      */
-    operateBtns?: {
-        /** 是否显示全屏按钮 */
-        fullscreen?: boolean
-        /** 是否显示截图按钮 */
-        screenshot?: boolean
-        /** 是否显示播放暂停按钮 */
-        play?: boolean
-        /** 是否显示声音按钮 */
-        audio?: boolean
-        /** 是否显示录制按 */
-        record?: boolean
-    }
+    operateBtns?: ControlOptions
     /**
      * 开启屏幕常亮，在手机浏览器上, canvas标签渲染视频并不会像video标签那样保持屏幕常亮
      */
@@ -709,10 +711,10 @@ declare global {
         onTimeout?: (error: TIMEOUT) => void
         onLoadingTimeout?: () => void
         onDelayTimeout?: () => void
-        onFullscreen?: (data: any) => void
+        onFullscreen?: (fullscreen: boolean) => void
         onPlay?: () => void
         onPause?: () => void
-        onMute?: (data: any) => void
+        onMute?: (mute: boolean) => void
         onStats?: (stats: Stats) => void
         onPerformance?: (performance: 0 | 1 | 2) => void
         onRecordStart?: () => void
@@ -735,10 +737,10 @@ export interface PlayerEvent {
     onTimeout?: (error: TIMEOUT) => void
     onLoadingTimeout?: () => void
     onDelayTimeout?: () => void
-    onFullscreen?: (data: any) => void
+    onFullscreen?: (fullscreen: boolean) => void
     onPlay?: () => void
     onPause?: () => void
-    onMute?: (data: any) => void
+    onMute?: (mute: boolean) => void
     onStats?: (stats: Stats) => void
     onPerformance?: (performance: 0 | 1 | 2) => void
     onRecordStart?: () => void
@@ -751,41 +753,47 @@ export interface PlayerEvent {
 export interface PlayerProps extends PlayerEvent {
     className?: string
     style?: CSSProperties
-    /** @description 视频宽度 */
+    /** 视频宽度 */
     width?: number
 
-    /** @description 视频高度 */
+    /** 视频高度 */
     height?: number
 
-    /** @description 视频地址 */
+    /** 视频地址 */
     src: string
 
-    /** @description 播放器配置 */
+    /** 播放器配置 */
     config?: PlayerConfig
 
-    /** @description 是否开启调试 */
+    /** 是否开启调试 */
     debug?: boolean
 
-    /** @description 是否静音，建议同时使用 onMute 事件来监听更改 */
+    /** 是否静音，建议同时使用 onMute 事件来监听更改 */
     mute?: boolean
 
-    /** @description 视频填充模式 */
+    /** 视频填充模式 */
     objectFit?: "fill" | "contain" | "cover"
 
-    /** @description 是否全屏，建议同时使用 onFullscreen 事件来监听更改 */
+    /** 是否全屏，建议同时使用 onFullscreen 事件来监听更改 */
     fullscreen?: boolean
 
-    /** @description 解码器 decoder.js 地址 */
+    /** 解码器 decoder.js 地址 */
     decoder?: string
 
-    /** @description 加载文字 */
+    /** 加载文字 */
     loadingText?: string
 
-    /** @description 解码模式，详见 https://jessibuca.com/document.html#usemse */
+    /** 解码模式，详见 https://jessibuca.com/document.html#usemse */
     decodeMode?: "useMSE" | "useWCS" | "wasm"
 
-    /** @description 当前超过并发限制时，回调 */
+    /** 当前超过并发限制时，回调 */
     onExceed?: (concurrency: number) => void
+
+    /** 是否开启控制栏 */
+    controls?: boolean | ControlOptions
+
+    /** 音量大小 */
+    volume?: number
 }
 
 let defaultDecoder = ""
@@ -801,7 +809,7 @@ export function setConcurrency(limit: number) {
 }
 
 const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
-    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, onExceed, decodeMode, fullscreen, loadingText } = props
+    const { width, height, src, config, debug, mute, objectFit, className, decoder = defaultDecoder, onExceed, decodeMode, fullscreen, loadingText, controls, volume } = props
 
     if (typeof decoder !== "string") {
         console.warn("检测到你没有输入解码器的 decorderUrl，请按以下步骤操作")
@@ -829,7 +837,8 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
                 ...config,
                 decoder,
                 ...(decodeMode === "useMSE" ? { useMSE: true } : decodeMode === "useWCS" ? { useWCS: true } : {}),
-                loadingText
+                loadingText,
+                ...(controls === undefined ? {} : typeof controls === "boolean" ? { operateBtns: { fullscreen: controls, screenshot: controls, play: controls, audio: controls, record: controls } } : { operateBtns: controls })
             })
             return () => {
                 total--
@@ -874,6 +883,15 @@ const JessibucaPlayer = forwardRef<Jessibuca, PlayerProps>((props, ref) => {
     useEffect(() => {
         jessibucaRef.current?.play(src)
     }, [src])
+
+    useEffect(() => {
+        if (volume === undefined) return
+        if ((volume === 0 || volume > 0) && (volume === 1 || volume < 1)) {
+            jessibucaRef.current?.setVolume(volume)
+        } else {
+            console.warn(`${volume} 不在 0-1 区间内`)
+        }
+    }, [volume])
 
     useEffect(() => {
         jessibucaRef.current?.setDebug(!!debug)
